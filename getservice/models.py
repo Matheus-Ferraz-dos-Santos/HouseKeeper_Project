@@ -1,6 +1,8 @@
-import uuid
+# import uuid
 from django.db import models
 from django.core.validators import RegexValidator, MaxValueValidator, MinValueValidator
+from django.urls import reverse
+from datetime import date
 
 # Create your models here.
 class Quote(models.Model):
@@ -27,7 +29,8 @@ class Quote(models.Model):
     phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: +999999999. Up to 15 digits allowed.")
 
 
-    response_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    response_id = models.AutoField(primary_key=True)
+    # response_id = models.UUIDField(default=uuid.uuid4, editable=False)
     observations = models.CharField(max_length=200, blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     client_name = models.CharField(max_length=200, blank=False, null=False)
@@ -41,14 +44,25 @@ class Quote(models.Model):
     window = models.BooleanField()
     qty_window = models.CharField(choices=num_choices, max_length=2)
     kitchen = models.BooleanField()
-    kitchen_addon =models.CharField(choices=kitchen_choices, max_length=50)
-    bedroom_addon =models.CharField(choices=bedroom_choices, max_length=50)
-    living_addon = models.CharField(choices=living_choices, max_length=100)
+    kitchen_addon =models.CharField(blank=False, null=True, choices=kitchen_choices, max_length=50, default=None)
+    bedroom_addon =models.CharField(blank=False, null=True, choices=bedroom_choices, max_length=50, default=None)
+    living_addon = models.CharField(blank=False, null=True, choices=living_choices, max_length=100, default=None)
     last_clean = models.BooleanField(default=True)
     pets = models.BooleanField()
     best_day = models.CharField(choices=weekdays, max_length=50)
     best_time =models.CharField(choices=period, max_length=50)
     address = models.CharField(blank=True, null=True, max_length=200)
 
+    #calculated fields
+
+
     def __str__(self):
-        return str(self.response_id)
+        return str(self.pk) + " - " + self.client_name
+
+    def get_absolute_url(self):
+        return reverse('quote', kwargs={'pk': self.pk })
+
+    @property
+    def DaysSince(self):
+        today = date.today()
+        days_since = (today - self.timestamp.date()).days

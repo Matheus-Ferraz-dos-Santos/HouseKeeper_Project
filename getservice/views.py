@@ -1,26 +1,31 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
+from . import models
 from .forms import QuoteForm
-from django.urls import reverse
-from django.http import JsonResponse
-from django.contrib import messages
+from django.views.generic import CreateView, DetailView
+from django.contrib.messages.views import SuccessMessageMixin
+
 
 # Create your views here.
-def GetIndexPage(request):
-    submitted = False
-    if request.method == 'POST':
-        form = QuoteForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Quote submitted successfully.')
-            return render(request, 'getservice/success.html', {'form': QuoteForm(request.GET)})
-        else:
-            messages.error(request, "Invalid form submission.")
-            messages.error(request, form.errors)
-    else:
+class CreateQuote(SuccessMessageMixin, CreateView):
+    model = models.Quote
+    form_class = QuoteForm
+    template_name = 'getservice/quote.html'
+    success_message = "Solicitação de orçamento enviada com sucesso. Entraremos em contacto em breve"
 
-        form = QuoteForm()
-        if 'submitted' in request.GET:
-            submitted = True
+class QuoteDetailView(DetailView):
+    model = models.Quote
 
-    return render(request, 'getservice/quote.html', context={'form':form, 'submitted':submitted})
+
+
+
+
+
+    #Get
+        #form
+
+    #POST:
+        # -csrf_token
+        # - validate
+        # - save
+        # - redirect to a success page

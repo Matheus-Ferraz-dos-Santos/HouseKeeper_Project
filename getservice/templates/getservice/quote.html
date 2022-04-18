@@ -1,17 +1,32 @@
 {% extends 'getservice/base.html' %}
+{% load crispy_forms_tags %}
 
 {% block title %}Solicite um Orçamento{% endblock title %}
 
 {% block content %}
+<div class="container-fluid">
+
+
+{% if messages %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close" name="button"><span aria-hidden='true'></span></button>
+  {% for message in messages %}
+  <div><strong>{{ message }}</strong></div>
+  {% endfor %}
+</div>
+
+{% endif %}
+
 <h1>Orçamento</h1>
 {% if submitted %}
   <p class='success'>Seu pedido foi enviado com sucesso!</p>
 
 {% else %}
-  <form action="" enctype="multipart/form-data" method="POST">
-    {{ form.as_p }}
+  <form class="form-control" action="" enctype="multipart/form-data" method="POST">
+    {{ form|crispy }}
     <input type="submit" name="" value="Enviar">
     {% csrf_token %}
   </form>
 {% endif %}
+</div>
 {% endblock content %}
